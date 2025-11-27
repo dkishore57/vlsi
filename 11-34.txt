@@ -1,0 +1,358 @@
+// ============================================================================
+// PROGRAM 11 — SEMAPHORE
+// ============================================================================
+module semaphore_example;
+  semaphore key; // declare semaphore
+
+  initial begin
+    key = new (1); // allow only 1 key
+    fork
+      personA();
+      personB();
+      #25 personA();
+    join_none
+  end
+
+  task getRoom (input bit [1:0] id);
+    $display ("[%0t] Trying to get a room for id[%0d].", $time, id);
+    key.get(1);
+    $display ("[%0t] Room Key retrieved for id[%0d]", $time, id);
+  endtask
+
+  task putRoom (input bit [1:0] id);
+    $display ("[%0t] Leaving room id[%0d].", $time, id);
+    key.put(1);
+    $display ("[%0t] Room Key put back id[%0d]", $time, id);
+  endtask
+
+  task personA ();
+    getRoom(1);
+    #20 putRoom(1);
+  endtask
+
+  task personB ();
+    #5 getRoom(2);
+    #10 putRoom(2);
+  endtask
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 12 — PACKED & UNPACKED ARRAYS
+// ============================================================================
+module packed_unpacked_array;
+  reg [7:0] packed_arr;
+  reg [7:0] unpacked_arr [0:3];
+
+  initial begin
+    packed_arr = 8'b10101010;
+    unpacked_arr[0] = 8'h11;
+    unpacked_arr[1] = 8'h22;
+    unpacked_arr[2] = 8'h33;
+    unpacked_arr[3] = 8'h44;
+
+    $display("Packed Array: %b", packed_arr);
+    $display("Unpacked Array: %h %h %h %h",
+      unpacked_arr[0], unpacked_arr[1],
+      unpacked_arr[2], unpacked_arr[3]);
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 13 — DYNAMIC ARRAY METHODS
+// ============================================================================
+module dynamic_array_methods;
+  int dyn_arr[];
+  int insert_pos;
+  int new_val;
+  int del_pos;
+
+  initial begin
+    dyn_arr = new[3];
+    dyn_arr = '{10, 20, 30};
+    $display("Initial Array: %p, size=%0d", dyn_arr, dyn_arr.size());
+
+    // Insert
+    insert_pos = 1;
+    new_val = 15;
+    dyn_arr = new[dyn_arr.size()+1](dyn_arr);
+    for (int i = dyn_arr.size()-1; i > insert_pos; i--)
+      dyn_arr[i] = dyn_arr[i-1];
+    dyn_arr[insert_pos] = new_val;
+    $display("After Insert: %p", dyn_arr);
+
+    // Delete
+    del_pos = 2;
+    for (int i = del_pos; i < dyn_arr.size()-1; i++)
+      dyn_arr[i] = dyn_arr[i+1];
+    dyn_arr = new[dyn_arr.size()-1](dyn_arr);
+    $display("After Delete: %p", dyn_arr);
+
+    dyn_arr.delete();
+    $display("After Deleting Entire Array: size=%0d", dyn_arr.size());
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 14 — ASSOCIATIVE ARRAY METHODS
+// ============================================================================
+module associative_array_example;
+  int assoc_arr[int];
+  int key;
+
+  initial begin
+    assoc_arr[10] = 100;
+    assoc_arr[5]  = 50;
+    assoc_arr[20] = 200;
+
+    if (assoc_arr.exists(10))
+      $display("Key 10 exists with value = %0d", assoc_arr[10]);
+
+    if (assoc_arr.first(key))
+      $display("First key = %0d, value = %0d", key, assoc_arr[key]);
+
+    if (assoc_arr.last(key))
+      $display("Last key = %0d, value = %0d", key, assoc_arr[key]);
+
+    if (assoc_arr.first(key)) begin
+      do begin
+        $display("Ascending: key = %0d, value = %0d", key, assoc_arr[key]);
+      end while (assoc_arr.next(key));
+    end
+
+    if (assoc_arr.last(key)) begin
+      do begin
+        $display("Descending: key = %0d, value = %0d", key, assoc_arr[key]);
+      end while (assoc_arr.prev(key));
+    end
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 15 — QUEUE PRINT BUFFER
+// ============================================================================
+module queue_print_buffer;
+  string printQ[$];
+
+  initial begin
+    printQ.push_back("Doc1");
+    printQ.push_back("Doc2");
+    printQ.push_front("UrgentDoc");
+    $display("Queue after pushes: %p", printQ);
+
+    printQ.pop_front();
+    $display("After pop_front: %p", printQ);
+
+    printQ.pop_back();
+    $display("After pop_back: %p", printQ);
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 16 — VENDING MACHINE (IF & CASE)
+// ============================================================================
+module vending_machine;
+  int choice;
+
+  initial begin
+    choice = 2;
+
+    if (choice == 1) $display("Dispensing: Soda");
+    else if (choice == 2) $display("Dispensing: Chips");
+    else if (choice == 3) $display("Dispensing: Chocolate");
+    else $display("Invalid choice");
+
+    case(choice)
+      1: $display("Case: Soda");
+      2: $display("Case: Chips");
+      3: $display("Case: Chocolate");
+      default: $display("Case: Invalid choice");
+    endcase
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 17 — TASK VS FUNCTION
+// ============================================================================
+module task_vs_function;
+
+  function int square(input int a);
+    square = a * a;
+  endfunction
+
+  task multiply(input int a, input int b, output int res);
+    res = a * b;
+  endtask
+
+  initial begin
+    int sq, mul;
+    sq = square(5);
+    $display("Square(5) = %0d", sq);
+
+    multiply(3, 7, mul);
+    $display("Multiply(3,7) = %0d", mul);
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 18 — BLOCKING & NON-BLOCKING
+// ============================================================================
+module blocking_nonblocking;
+  reg a, b, c;
+
+  initial begin
+    a = 0; b = 0; c = 0;
+
+    a = 1;
+    b = a;
+    $display("Blocking: a=%0d b=%0d", a, b);
+
+    a <= 0;
+    b <= a;
+    #1;
+    $display("Non-blocking: a=%0d b=%0d", a, b);
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 19 — FUNCTION & TASK
+// ============================================================================
+module func_task_example;
+
+  function int square5();
+    square5 = 5 * 5;
+  endfunction
+
+  task multiply37();
+    int result;
+    result = 3 * 7;
+    $display("Task multiply 3*7 = %0d", result);
+  endtask
+
+  initial begin
+    $display("Function square(5) = %0d", square5());
+    multiply37();
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 20 — QUEUE OPERATIONS
+// ============================================================================
+module queue_operations;
+  int q[$];
+
+  initial begin
+    q = {5, 10, 15};
+    $display("Initial Queue: %p", q);
+
+    q.push_back(20);
+    $display("After push_back(20): %p", q);
+
+    q.pop_front();
+    $display("After pop_front: %p", q);
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 21 — STRING-INDEXED ASSOCIATIVE ARRAY
+// ============================================================================
+module associative_array_example2;
+  int marks[string];
+  string f, l;
+
+  initial begin
+    marks["Alice"] = 85;
+    marks["Bob"]   = 90;
+    marks["Carol"] = 78;
+
+    $display("Bob's Marks = %0d", marks["Bob"]);
+
+    marks.first(f);
+    marks.last(l);
+
+    $display("First Index = %s", f);
+    $display("Last Index = %s", l);
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 22 — STRING OPERATIONS
+// ============================================================================
+module string_example;
+  string s1, s2, s3;
+
+  initial begin
+    s1 = "System";
+    s2 = "Verilog";
+
+    s3 = {s1, s2};
+    $display("Concatenated String = %s", s3);
+
+    $display("Substring (log) = %s", s2.substr(4,6));
+
+    if (s1 == s2)
+      $display("Strings are equal");
+    else
+      $display("Strings are not equal");
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 23 — DATATYPE EXAMPLES
+// ============================================================================
+module datatype_example;
+  bit b = 1'b1;
+  logic l = 1'bz;
+  int i = 1024;
+  byte by = -5;
+
+  initial begin
+    $display("bit b = %b (Range: 0 or 1)", b);
+    $display("logic l = %b (Range: 0, 1, X, Z)", l);
+    $display("int i = %0d (Range: %0d to %0d)", i, -2147483648, 2147483647);
+    $display("byte by = %0d (Range: -128 to 127)", by);
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 24 — TYPEDEF 4-BIT BUS
+// ============================================================================
+module typedef_example;
+  typedef logic [3:0] bus4;
+  bus4 a, b;
+
+  initial begin
+    a = 4'b1010;
+    b = 4'b0110;
+
+    $display("a = %b, b = %b", a, b);
+    $display("a AND b = %b", a & b);
+    $display("a OR  b = %b", a | b);
+    $display("a XOR b = %b", a ^ b);
+  end
+endmodule
