@@ -1,5 +1,6 @@
-
-25 . IF ELSE
+// ============================================================================
+// PROGRAM 25 — IF ELSE
+// ============================================================================
 module grading_example;
   int marks = 72;
   initial begin
@@ -15,10 +16,13 @@ module grading_example;
 endmodule
 
 
-26 MAILBOX
 
+// ============================================================================
+// PROGRAM 26 — MAILBOX
+// ============================================================================
 module producer_consumer_tb;
   mailbox mbx;
+
   // Producer task
   task automatic producer();
     int data;
@@ -58,8 +62,9 @@ endmodule
 
 
 
-27 THIS KEYWORD 
-
+// ============================================================================
+// PROGRAM 27 — THIS KEYWORD
+// ============================================================================
 class Employee;
   int id;
   string name;
@@ -87,8 +92,11 @@ module this_keyword_demo;
   end
 endmodule
 
-28 SUPER KEY WORD
 
+
+// ============================================================================
+// PROGRAM 28 — SUPER KEYWORD
+// ============================================================================
 class Person;
   string name;
   function new(string name);
@@ -120,14 +128,17 @@ module super_keyword_demo;
   end
 endmodule
 
-29 RECTANGLE
 
+
+// ============================================================================
+// PROGRAM 29 — RECTANGLE
+// ============================================================================
 class Rectangle;
   int width;
   int height;
 
   // Single constructor with optional parameters
-  function new(int w = 1, int h = 1); 
+  function new(int w = 1, int h = 1);
     width  = w;
     height = h;
   endfunction
@@ -142,7 +153,6 @@ class Rectangle;
   endfunction
 endclass
 
-
 module rect_tb;
   initial begin
     Rectangle r1 = new();        // uses default w=1, h=1
@@ -154,8 +164,11 @@ module rect_tb;
 endmodule
 
 
-30 INHERITENCE
-class Person;
+
+// ============================================================================
+// PROGRAM 30 — INHERITANCE
+// ============================================================================
+class Person2;
   string name;
   int age;
   function new(string name, int age);
@@ -168,7 +181,7 @@ class Person;
   endfunction
 endclass
 
-class Student extends Person;
+class Student2 extends Person2;
   int roll_no;
   real marks;
   function new(string name, int age, int roll_no, real marks);
@@ -185,14 +198,18 @@ endclass
 
 module super_inheritance_demo;
   initial begin
-    Student s1 = new("Kavya", 20, 105, 89.5);
+    Student2 s1 = new("Kavya", 20, 105, 89.5);
     $display("=== STUDENT DETAILS ===\n");
     s1.display();
     $finish;
   end
 endmodule
 
-31 SHALLOW COPY DEEP COPY
+
+
+// ============================================================================
+// PROGRAM 31 — SHALLOW COPY & DEEP COPY
+// ============================================================================
 class Data;
   int arr[]; // dynamic
   function new(int n);
@@ -223,14 +240,17 @@ module copy_demo;
     d1.arr[0] = 99;
     $display("\n--- After Modifying d1.arr[0] = 99 ---");
     d1.display("d1");
-    d2.display("d2 (Shallow Copy)"); // shows changed value
-    d3.display("d3 (Deep Copy)");    // unaffected
+    d2.display("d2 (Shallow Copy)");
+    d3.display("d3 (Deep Copy)");
     $finish;
   end
 endmodule
 
 
-32 ACCOUNT CLASS LOCAL DATA METHOD
+
+// ============================================================================
+// PROGRAM 32 — ACCOUNT CLASS (LOCAL, PROTECTED)
+// ============================================================================
 class Account;
   local real balance;
   function new(real initial_balance);
@@ -249,7 +269,7 @@ class SavingsAccount extends Account;
     super.new(b);
   endfunction
   function void deposit(real amount);
-    update_balance(amount); // allowed: protected method accessible in derived class
+    update_balance(amount);
     $display("Deposited %.2f successfully.", amount);
   endfunction
 endclass
@@ -265,7 +285,10 @@ module account_access_demo;
 endmodule
 
 
-33 ABSTRACT CLASS TRANSACTION
+
+// ============================================================================
+// PROGRAM 33 — ABSTRACT CLASS TRANSACTION
+// ============================================================================
 virtual class Transaction;
   rand int amount;
   pure virtual function void execute();
@@ -313,7 +336,9 @@ endmodule
 
 
 
-34 PACKET CLASS WITH Randomization
+// ============================================================================
+// PROGRAM 34 — PACKET CLASS WITH RANDOMIZATION
+// ============================================================================
 class Packet;
   rand bit [3:0] src_addr;
   rand bit [3:0] dest_addr;
@@ -342,4 +367,3 @@ module packet_tb;
     $finish;
   end
 endmodule
-

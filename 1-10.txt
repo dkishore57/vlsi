@@ -1,0 +1,193 @@
+// ============================================================================
+// PROGRAM 1 — Enum: Days of Week
+// ============================================================================
+typedef enum {SUNDAY=0, MONDAY, TUESDAY, WEDNESDAY,
+              THURSDAY, FRIDAY, SATURDAY} days_t;
+
+module tb_enum_days;
+  days_t day;
+  initial begin
+    day = WEDNESDAY;
+    $display("Current Day : %s (%0d)", day.name(), day);
+
+    day = day.next();
+    $display("Next Day : %s (%0d)", day.name(), day);
+
+    if (day == SUNDAY || day == SATURDAY)
+      $display("%s is a Weekend!", day.name());
+    else
+      $display("%s is a Weekday!", day.name());
+
+    $finish;
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 2 — Array ordering: reverse, sort, rsort, shuffle
+// ============================================================================
+module tb_array_order;
+  int array[9] = '{4,7,2,5,7,1,6,3,1};
+  initial begin
+    $display("Original : %p", array);
+    array.reverse();
+    $display("reverse  : %p", array);
+    array.sort();
+    $display("sort     : %p", array);
+    array.rsort();
+    $display("rsort    : %p", array);
+
+    for (int i = 0; i < 4; i++) begin
+      array.shuffle();
+      $display("shuffle %0d : %p", i, array);
+    end
+
+    $finish;
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 3 — Reduction methods: and(), or(), xor()
+// ============================================================================
+module tb_array_reduction;
+  int array[8] = '{15,7,3,12,9,1,5,0};
+  initial begin
+    $display("Array = %p", array);
+    $display("Bitwise AND = %0d", array.and());
+    $display("Bitwise OR  = %0d", array.or());
+    $display("Bitwise XOR = %0d", array.xor());
+    $finish;
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 4 — Traffic light FSM using enum
+// ============================================================================
+typedef enum {RED, GREEN, YELLOW} light_t;
+
+module tb_traffic;
+  light_t light;
+  initial begin
+    light = RED;
+    repeat (6) begin
+      $display("[%0t] Light = %s (%0d)", $time, light.name(), light);
+      #10;
+      light = light.next();
+    end
+    $finish;
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 5 — For loop iterating array items
+// ============================================================================
+module tb_for;
+  int arr[5] = '{10,20,30,40,50};
+  initial begin
+    for (int i = 0; i < 5; i++)
+      $display("arr[%0d] = %0d", i, arr[i]);
+    $finish;
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 6 — foreach loop with array elements
+// ============================================================================
+module tb_foreach;
+  int arr[5] = '{5,10,15,20,25};
+  initial begin
+    foreach(arr[i])
+      $display("arr[%0d] = %0d", i, arr[i]);
+    $finish;
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 7 — repeat loop
+// ============================================================================
+module tb_repeat;
+  int arr[5] = '{2,4,6,8,10};
+  initial begin
+    int idx = 0;
+    repeat(5) begin
+      $display("arr[%0d] = %0d", idx, arr[idx]);
+      idx++;
+    end
+    $finish;
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 8 — break & continue
+// ============================================================================
+module break_continue_example;
+  int arr[6] = '{5,10,15,20,25,30};
+  initial begin
+    $display("Using continue (skip 15):");
+    foreach(arr[i]) begin
+      if(arr[i] == 15)
+        continue;
+      $display("%0d", arr[i]);
+    end
+
+    $display("Using break (stop at 20):");
+    foreach(arr[i]) begin
+      if(arr[i] == 20)
+        break;
+      $display("%0d", arr[i]);
+    end
+
+    $finish;
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 9 — fork-join (parallel threads)
+// ============================================================================
+module fork_join_example;
+  initial begin
+    $display("Simulation Start");
+    fork
+      begin #5  $display("Thread 1 executed @%0t", $time); end
+      begin #10 $display("Thread 2 executed @%0t", $time); end
+      begin #15 $display("Thread 3 executed @%0t", $time); end
+    join
+    $display("All threads completed @%0t", $time);
+    $finish;
+  end
+endmodule
+
+
+
+// ============================================================================
+// PROGRAM 10 — fork-join_any
+// ============================================================================
+module fork_join_any_example;
+  initial begin
+    $display("Simulation Start");
+    fork
+      begin #5  $display("Thread A executed @%0t", $time); end
+      begin #10 $display("Thread B executed @%0t", $time); end
+      begin #15 $display("Thread C executed @%0t", $time); end
+    join_any
+    $display("At least one thread completed @%0t", $time);
+    #20;
+    $display("Simulation End @%0t", $time);
+    $finish;
+  end
+endmodule
