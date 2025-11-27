@@ -1,0 +1,154 @@
+
+IF ELSE
+module grading_example;
+  int marks = 72;
+  initial begin
+    if (marks >= 90)
+      $display("Marks = %0d, Grade = A", marks);
+    else if (marks >= 75)
+      $display("Marks = %0d, Grade = B", marks);
+    else if (marks >= 50)
+      $display("Marks = %0d, Grade = C", marks);
+    else
+      $display("Marks = %0d, Grade = F", marks);
+  end
+endmodule
+
+
+MAILBOX
+
+module producer_consumer_tb;
+  mailbox mbx;
+  // Producer task
+  task automatic producer();
+    int data;
+    $display("\n[Producer] Started");
+    repeat (5) begin
+      data = $urandom_range(1,100);
+      mbx.put(data);
+      $display("[Producer] Sent data: %0d", data);
+      #2;
+    end
+    $display("[Producer] Finished\n");
+  endtask
+
+  // Consumer task
+  task automatic consumer();
+    int recv;
+    $display("[Consumer] Started");
+    repeat (5) begin
+      mbx.get(recv);
+      $display("[Consumer] Received data: %0d", recv);
+      #3;
+    end
+    $display("[Consumer] Finished\n");
+  endtask
+
+  initial begin
+    mbx = new();
+    $display("=== PRODUCER-CONSUMER SIMULATION START ===");
+    fork
+      producer();
+      consumer();
+    join
+    $display("=== SIMULATION COMPLETE ===");
+    $finish;
+  end
+endmodule
+
+
+
+THIS KEYWORD 
+
+class Employee;
+  int id;
+  string name;
+  real salary;
+  function new(int id, string name, real salary);
+    this.id = id;
+    this.name = name;
+    this.salary = salary;
+  endfunction
+  function void display();
+    $display("Employee ID: %0d", id);
+    $display("Employee Name: %s", name);
+    $display("Employee Salary: %.2f\n", salary);
+  endfunction
+endclass
+
+module this_keyword_demo;
+  initial begin
+    Employee e1 = new(101, "John", 55000.50);
+    Employee e2 = new(102, "Alice", 72000.75);
+    $display("=== Employee Details ===\n");
+    e1.display();
+    e2.display();
+    $finish;
+  end
+endmodule
+
+SUPER KEY WORD
+
+class Person;
+  string name;
+  function new(string name);
+    this.name = name;
+  endfunction
+  function void display();
+    $display("Name: %s", name);
+  endfunction
+endclass
+
+class Student extends Person;
+  int reg_no;
+  function new(string name, int reg_no);
+    super.new(name);
+    this.reg_no = reg_no;
+  endfunction
+  function void display();
+    super.display();
+    $display("Registration Number: %0d", reg_no);
+  endfunction
+endclass
+
+module super_keyword_demo;
+  initial begin
+    Student s1 = new("Alice", 202501);
+    $display("=== Student Details ===");
+    s1.display();
+    $finish;
+  end
+endmodule
+
+RECTANGLE
+
+class Rectangle;
+  int width;
+  int height;
+  function new(); // default constructor
+    width = 1;
+    height = 1;
+  endfunction
+  function new(int w, int h); // parameterized
+    width = w;
+    height = h;
+  endfunction
+  function int area();
+    return width * height;
+  endfunction
+  function void display();
+    $display("Rectangle: width=%0d, height=%0d, area=%0d", width, height, area());
+  endfunction
+endclass
+
+module rect_demo;
+  initial begin
+    Rectangle r1 = new();         // default
+    Rectangle r2 = new(4, 5);     // param
+    r1.display();
+    r2.display();
+    $finish;
+  end
+endmodule
+
+
