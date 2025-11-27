@@ -1,5 +1,5 @@
 
-IF ELSE
+25 . IF ELSE
 module grading_example;
   int marks = 72;
   initial begin
@@ -15,7 +15,7 @@ module grading_example;
 endmodule
 
 
-MAILBOX
+26 MAILBOX
 
 module producer_consumer_tb;
   mailbox mbx;
@@ -58,7 +58,7 @@ endmodule
 
 
 
-THIS KEYWORD 
+27 THIS KEYWORD 
 
 class Employee;
   int id;
@@ -87,7 +87,7 @@ module this_keyword_demo;
   end
 endmodule
 
-SUPER KEY WORD
+28 SUPER KEY WORD
 
 class Person;
   string name;
@@ -120,35 +120,226 @@ module super_keyword_demo;
   end
 endmodule
 
-RECTANGLE
+29 RECTANGLE
 
 class Rectangle;
   int width;
   int height;
-  function new(); // default constructor
-    width = 1;
-    height = 1;
-  endfunction
-  function new(int w, int h); // parameterized
-    width = w;
+
+  // Single constructor with optional parameters
+  function new(int w = 1, int h = 1); 
+    width  = w;
     height = h;
   endfunction
+
   function int area();
     return width * height;
   endfunction
+
   function void display();
-    $display("Rectangle: width=%0d, height=%0d, area=%0d", width, height, area());
+    $display("Rectangle: width=%0d, height=%0d, area=%0d",
+              width, height, area());
   endfunction
 endclass
 
-module rect_demo;
+
+module rect_tb;
   initial begin
-    Rectangle r1 = new();         // default
-    Rectangle r2 = new(4, 5);     // param
+    Rectangle r1 = new();        // uses default w=1, h=1
+    Rectangle r2 = new(4, 5);    // uses passed arguments
+
     r1.display();
     r2.display();
+  end
+endmodule
+
+
+30 INHERITENCE
+class Person;
+  string name;
+  int age;
+  function new(string name, int age);
+    this.name = name;
+    this.age = age;
+  endfunction
+  function void display();
+    $display("Name : %s", name);
+    $display("Age  : %0d", age);
+  endfunction
+endclass
+
+class Student extends Person;
+  int roll_no;
+  real marks;
+  function new(string name, int age, int roll_no, real marks);
+    super.new(name, age);
+    this.roll_no = roll_no;
+    this.marks = marks;
+  endfunction
+  function void display();
+    super.display();
+    $display("Roll No : %0d", roll_no);
+    $display("Marks   : %.2f", marks);
+  endfunction
+endclass
+
+module super_inheritance_demo;
+  initial begin
+    Student s1 = new("Kavya", 20, 105, 89.5);
+    $display("=== STUDENT DETAILS ===\n");
+    s1.display();
     $finish;
   end
 endmodule
 
+31 SHALLOW COPY DEEP COPY
+class Data;
+  int arr[]; // dynamic
+  function new(int n);
+    arr = new[n];
+    foreach (arr[i]) arr[i] = i + 1;
+  endfunction
+  function void display(string msg);
+    $write("%s: ", msg);
+    foreach (arr[i]) $write("%0d ", arr[i]);
+    $display("");
+  endfunction
+  function Data deep_copy();
+    Data temp = new(arr.size());
+    foreach (arr[i]) temp.arr[i] = this.arr[i];
+    return temp;
+  endfunction
+endclass
+
+module copy_demo;
+  Data d1, d2, d3;
+  initial begin
+    d1 = new(5);
+    d1.display("Original d1");
+    d2 = d1;           // shallow
+    d2.display("After Shallow Copy d2");
+    d3 = d1.deep_copy(); // deep
+    d3.display("After Deep Copy d3");
+    d1.arr[0] = 99;
+    $display("\n--- After Modifying d1.arr[0] = 99 ---");
+    d1.display("d1");
+    d2.display("d2 (Shallow Copy)"); // shows changed value
+    d3.display("d3 (Deep Copy)");    // unaffected
+    $finish;
+  end
+endmodule
+
+
+32 ACCOUNT CLASS LOCAL DATA METHOD
+class Account;
+  local real balance;
+  function new(real initial_balance);
+    balance = initial_balance;
+  endfunction
+  protected function void update_balance(real amount);
+    balance = balance + amount;
+  endfunction
+  function void show_balance();
+    $display("Current Balance: %.2f", balance);
+  endfunction
+endclass
+
+class SavingsAccount extends Account;
+  function new(real b);
+    super.new(b);
+  endfunction
+  function void deposit(real amount);
+    update_balance(amount); // allowed: protected method accessible in derived class
+    $display("Deposited %.2f successfully.", amount);
+  endfunction
+endclass
+
+module account_access_demo;
+  initial begin
+    SavingsAccount s1 = new(5000.0);
+    s1.show_balance();
+    s1.deposit(1500.0);
+    s1.show_balance();
+    $finish;
+  end
+endmodule
+
+
+33 ABSTRACT CLASS TRANSACTION
+virtual class Transaction;
+  rand int amount;
+  pure virtual function void execute();
+  function void pre_randomize();
+    $display("Preparing to randomize transaction...");
+  endfunction
+  function void post_randomize();
+    $display("Transaction randomization completed. Amount = %0d", amount);
+  endfunction
+endclass
+
+class Deposit extends Transaction;
+  function void execute();
+    if (!randomize(amount) with { amount inside {[100:10000]}; }) begin
+      $display("Randomization failed for Deposit.");
+    end else begin
+      $display("\n[Deposit Transaction]");
+      $display("Deposited Amount: %0d", amount);
+    end
+  endfunction
+endclass
+
+class Withdraw extends Transaction;
+  function void execute();
+    if (!randomize(amount) with { amount inside {[100:10000]}; }) begin
+      $display("Randomization failed for Withdraw.");
+    end else begin
+      $display("\n[Withdraw Transaction]");
+      $display("Withdrawn Amount: %0d", amount);
+    end
+  endfunction
+endclass
+
+module transaction_demo;
+  Deposit d;
+  Withdraw w;
+  initial begin
+    d = new();
+    w = new();
+    d.execute();
+    w.execute();
+    $finish;
+  end
+endmodule
+
+
+
+34 PACKET CLASS WITH Randomization
+class Packet;
+  rand bit [3:0] src_addr;
+  rand bit [3:0] dest_addr;
+  rand bit [7:0] payload;
+
+  function void pre_randomize();
+    $display("About to randomize packet fields... Setting them to 0.");
+    src_addr = 0;
+    dest_addr = 0;
+    payload = 0;
+  endfunction
+
+  function void post_randomize();
+    $display("Randomized Packet -> src=%0d dest=%0d payload=%0d",
+             src_addr, dest_addr, payload);
+    if (src_addr == dest_addr)
+      $display("WARNING: src_addr == dest_addr");
+  endfunction
+endclass
+
+module packet_tb;
+  Packet p;
+  initial begin
+    p = new();
+    if (!p.randomize()) $display("Randomize failed");
+    $finish;
+  end
+endmodule
 
